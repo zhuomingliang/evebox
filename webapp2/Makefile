@@ -1,0 +1,4 @@
+all:
+
+start:
+	npm start

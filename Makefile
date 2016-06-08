@@ -18,14 +18,14 @@ APP :=		evebox
 
 WEBPACK :=	./node_modules/.bin/webpack
 
-WEBAPP_SRCS :=	$(shell find webapp -type f)
+WEBAPP_SRCS :=	$(shell find webapp2 -type f)
 GO_SRCS :=	$(shell find . -name \*.go)
 
 all: public evebox
 
 install-deps:
 # NPM
-	npm install
+	(cd webapp2 && npm install)
 # Go
 	go get github.com/Masterminds/glide
 	go get github.com/GeertJohan/go.rice/rice
@@ -44,7 +44,7 @@ distclean: clean
 
 # Build the webapp bundle.
 public/bundle.js: $(WEBAPP_SRCS)
-	$(WEBPACK) --optimize-minimize
+	cd webapp2 && $(WEBPACK) --optimize-minimize
 public: public/bundle.js
 
 evebox: $(GO_SRCS)
@@ -62,8 +62,8 @@ dev-server:
 		echo "error: EVEBOX_ELASTICSEARCH_URL not set."; \
 		exit 1; \
 	fi
-	./node_modules/.bin/concurrent -k \
-		"npm run server" \
+	./webapp2/node_modules/.bin/concurrently -k \
+		"make -C webapp2 start" \
 		"gin --appPort 5636 -i -b evebox ./evebox -e ${EVEBOX_ELASTICSEARCH_URL} --dev http://localhost:8080"
 
 dist: GOARCH ?= $(shell go env GOARCH)
