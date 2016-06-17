@@ -1,5 +1,5 @@
 # Version info.
-VERSION		:=	0.5.1
+VERSION		:=	0.6.0
 VERSION_SUFFIX	:=	dev
 BUILD_DATE	:=	$(shell TZ=UTC date)
 BUILD_DATE_ISO	:=	$(shell TZ=UTC date +%Y%m%d%H%M%S)
@@ -12,7 +12,7 @@ export GO15VENDOREXPERIMENT=1
 
 LDFLAGS :=	-X \"main.buildDate=$(BUILD_DATE)\" \
 		-X \"main.buildRev=$(BUILD_REV)\" \
-		-X \"main.buildVersion=$(VERSION)$(VERSION_SUFFIX)\"
+		-X \"main.buildVersion=$(VERSION)$(VERSION_SUFFIX)\" \
 
 APP :=		evebox
 
@@ -69,6 +69,7 @@ dev-server:
 dist: GOARCH ?= $(shell go env GOARCH)
 dist: GOOS ?= $(shell go env GOOS)
 dist: DISTNAME ?= ${APP}-${VERSION}${VERSION_SUFFIX}-${GOOS}-${GOARCH}
+dist: LDFLAGS += -s -w
 dist:
 	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o dist/$(DISTNAME)/${APP}
 	rice -v append --exec dist/${DISTNAME}/${APP}
