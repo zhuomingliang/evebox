@@ -24,7 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Directive, Input, ElementRef, OnInit, OnDestroy} from "@angular/core";
+import {
+    Directive, Input, ElementRef, OnInit, OnDestroy,
+    OnChanges
+} from "@angular/core";
 import {MousetrapService} from "./mousetrap.service";
 
 declare var jQuery:any;
@@ -33,7 +36,7 @@ declare var window:any;
 @Directive({
     selector: "[eveboxKeyTable]"
 })
-export class KeyTableDirective implements OnInit, OnDestroy {
+export class KeyTableDirective implements OnInit, OnDestroy, OnChanges {
 
     @Input("rows") private rows:any[] = [];
     @Input("keyTableState") private keyTableState:any = 0;
@@ -92,6 +95,15 @@ export class KeyTableDirective implements OnInit, OnDestroy {
 
     ngOnDestroy():any {
         this.mousetrap.unbind(this);
+    }
+
+    ngOnChanges(changes:{}):any {
+        
+        // Check that the active row is still within range of the rows,
+        // decrementing it if necessary.
+        if (this.keyTableState.activeRow >= this.getRowCount()) {
+            this.keyTableState.activeRow = this.getRowCount() - 1;
+        }
     }
 
 }

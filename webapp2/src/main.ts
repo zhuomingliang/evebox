@@ -25,6 +25,9 @@ import {ROUTER_PROVIDERS} from "@angular/router";
 import {LocationStrategy, HashLocationStrategy} from "@angular/common";
 import {provide} from "@angular/core";
 
+import {Routes} from "@ngrx/router";
+import {provideRouter} from "@ngrx/router";
+
 import "bootstrap";
 
 import "./evebox.scss";
@@ -35,9 +38,30 @@ import {AppComponent} from "./app.component";
 import {ConfigService} from "./config.service";
 import {ElasticSearchService} from "./elasticsearch.service";
 import {MousetrapService} from "./mousetrap.service";
+import {InboxComponent} from "./inbox.component";
+import {EventComponent} from "./event.component";
+import {EventsComponent} from "./events.component";
+
+const routes: Routes = [
+    {
+        path: "/inbox",
+        component: InboxComponent
+    }
+    ,
+    {
+        path: "/event/:id",
+        component: EventComponent
+    }
+    ,
+    {
+        path: "/events",
+        component: EventsComponent
+    }
+];
 
 //noinspection TypeScriptValidateTypes
 bootstrap(AppComponent, [
+    provideRouter(routes),
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
     provide(LocationStrategy, {

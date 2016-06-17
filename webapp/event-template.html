@@ -49,36 +49,6 @@
       <div class="row">
         <div class="col-md-5">
           <dl class="dl-horizontal">
-            <dt>Timestamp</dt>
-            <dd>{{::vm.event.newest._source.timestamp}}</dd>
-            <dt>Protocol</dt>
-            <dd>{{::vm.event.newest._source.proto}}</dd>
-            <dt>Source</dt>
-            <dd>
-              <search-link
-                  value="{{::vm.event.newest._source.src_ip}}"></search-link><span
-                ng-if="vm.event.newest._source.src_port"
-                style="color: dimgrey;">:{{::vm.event.newest._source.src_port}}</span>
-            </dd>
-            <dt>Destination</dt>
-            <dd>
-              <span search-link
-                    value="{{::vm.event.newest._source.dest_ip}}">
-              </span><span
-                ng-if="vm.source.dest_port"
-                style="color: dimgrey;">:{{vm.source.dest_port}}</span>
-            </dd>
-            <span ng-if="vm.event.newest._source.in_iface">
-              <dt>In Interface</dt>
-              <dd>{{::vm.event.newest._source.in_iface}}</dd>
-            </span>
-            <span ng-if="vm.event.newest._source.flow_id">
-              <dt>Flow ID
-              <dd>
-                <span search-link field="flow_id"
-                      value="{{::vm.event.newest._source.flow_id}}"></span>
-              </dd>
-            </span>
           </dl>
         </div>
         <div class="col-md-7">
@@ -87,22 +57,6 @@
 
               <!-- Alert. -->
               <div ng-switch-when="alert">
-                <dt>Signature</dt>
-                <dd>
-                  <span search-link field="alert.signature.raw"
-                        state="alerts"
-                        value="{{::vm.event.newest._source.alert.signature}}"></span>
-                </dd>
-                <dt>Category</dt>
-                <dd>{{vm.event.newest._source.alert.category}}
-                </dd>
-                <dt>Signature ID</dt>
-                <dd>
-                  {{::vm.event.newest._source.alert.gid}}:{{::vm.event.newest._source.alert.signature_id}}:{{::vm.event.newest._source.alert.rev}}
-                </dd>
-                <dt>Severity</dt>
-                <dd>{{vm.event.newest._source.alert.severity}}
-                </dd>
               </div>
 
               <!-- DNS. -->

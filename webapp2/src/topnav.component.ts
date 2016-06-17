@@ -1,4 +1,5 @@
 import {Component} from "@angular/core";
+import {ElasticSearchService} from "./elasticsearch.service";
 
 @Component({
     selector: "evebox-top-nav",
@@ -18,10 +19,16 @@ import {Component} from "@angular/core";
 
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a>Inbox</a></li>
-        <li><a>Escalated</a></li>
-        <li><a>Alerts</a></li>
-        <li><a>Events</a></li>
+        <li linkActive="active"><a linkTo="/inbox">Inbox</a></li>
+        <li linkActive="active"><a linkTo="/escalated">Escalated</a></li>
+        <li linkActive="active"><a linkTo="/alerts">Alerts</a></li>
+        <li linkActive="active"><a linkTo="/events">Events</a></li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a><span class="badge">{{elasticSearchService.jobSize()}}</span></a>
+        </li>
       </ul>
     </div>
 
@@ -29,5 +36,8 @@ import {Component} from "@angular/core";
 </nav>`
 })
 export class TopNavComponent {
+
+    constructor(private elasticSearchService:ElasticSearchService) {
+    }
 
 }
