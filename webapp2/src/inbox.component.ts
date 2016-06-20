@@ -26,16 +26,16 @@
 
 import {Component, OnInit, OnDestroy, NgZone} from "@angular/core";
 import {NgClass} from "@angular/common";
-
-import {ElasticSearchService, AlertGroup} from "./elasticsearch.service";
+import {Router} from "@angular/router";
 
 import moment = require("moment");
+
+import {ElasticSearchService, AlertGroup} from "./elasticsearch.service";
 import {EveboxFormatTimestampPipe} from "./format-timestamp.pipe";
 import {EveboxFormatIpAddressPipe} from "./format-ipaddress.pipe";
 import {EveboxDurationComponent} from "./duration.component";
 import {MousetrapService} from "./mousetrap.service";
 import {KeyTableDirective} from "./keytable.directive";
-import {Router} from "@ngrx/router";
 
 @Component({
     template: `<!-- Div will "fade" the page while loading events. -->
@@ -53,7 +53,8 @@ import {Router} from "@ngrx/router";
               class="btn btn-default"
               (click)="deselectAllRows()">Deselect All
       </button>
-      <button *ngIf="rows.length > 0 && getSelectedCount() > 0" type="button" class="btn btn-default"
+      <button *ngIf="rows.length > 0 && getSelectedCount() > 0" type="button"
+              class="btn btn-default"
               (click)="archiveSelected()">Archive
       </button>
     </div>
@@ -61,14 +62,14 @@ import {Router} from "@ngrx/router";
 
       <br class="hidden-lg hidden-md"/>
 
-<form (submit)="refresh()">
-      <div class="input-group">
-        <input id="filter-input" type="text" class="form-control" 
-        placeholder="Filter..." [(ngModel)]="queryString"/>
-      <span class="input-group-btn">
-        <button class="btn btn-default" type="submit">Apply</button>
-      </span>
-      </div>
+      <form (submit)="refresh()">
+        <div class="input-group">
+          <input id="filter-input" type="text" class="form-control"
+                 placeholder="Filter..." [(ngModel)]="queryString"/>
+          <div class="input-group-btn">
+            <button class="btn btn-default" type="submit">Apply</button>
+          </div>
+        </div>
       </form>
     </div>
   </div>
@@ -107,20 +108,19 @@ import {Router} from "@ngrx/router";
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let row of rows; let i = index" [ngClass]="row.class">
-        <td><span *ngIf="i == keyTableState.activeRow"
+      <tr *ngFor="let row of rows; let i = index" [ngClass]="row.class" (click)="openEvent(row.event)"> <td><span *ngIf="i == keyTableState.activeRow"
                   class="glyphicon glyphicon-chevron-right"></span></td>
         <td>
           <input type="checkbox" [(ngModel)]="row.selected">
         </td>
         <td>
           <i *ngIf="row.event.escalatedCount == 0"
-             class="fa fa-star-o" 
+             class="fa fa-star-o"
              (click)="toggleEscalatedState(row)"></i>
-          <i *ngIf="row.event.escalatedCount == row.event.count" 
+          <i *ngIf="row.event.escalatedCount == row.event.count"
              class="fa fa-star"
              (click)="toggleEscalatedState(row)"></i>
-          <i *ngIf="row.event.escalatedCount > 0 &&  row.event.escalatedCount != row.event.count" 
+          <i *ngIf="row.event.escalatedCount > 0 &&  row.event.escalatedCount != row.event.count"
              class="fa fa-star-half-o"
              (click)="toggleEscalatedState(row)"></i>
         </td>
@@ -204,7 +204,12 @@ export class InboxComponent implements OnInit, OnDestroy {
     }
 
     openActiveEvent() {
-        this.router.go("/event/" + this.getActiveRow().event.event._id);
+        console.log("openActiveEvent");
+        this.openEvent(this.getActiveRow().event);
+    }
+
+    openEvent(event:AlertGroup) {
+        this.router.navigate(['/event', event.event._id]);
     }
 
     focusFilterInput() {

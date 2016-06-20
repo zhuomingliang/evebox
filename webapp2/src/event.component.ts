@@ -1,9 +1,37 @@
+/* Copyright (c) 2014-2016 Jason Ish
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 import {Component, OnInit} from "@angular/core";
-import {RouteParams} from "@ngrx/router";
 import {ElasticSearchService} from "./elasticsearch.service";
 import {EventSeverityToBootstrapClass} from "./event-severity-to-bootstrap-class.filter";
 import {CodemirrorComponent} from "./codemirror.component";
 import {JsonPipe} from "@angular/common";
+import {ActivatedRoute, Router} from "@angular/router";
+import {MapToItemsPipe} from "./maptoitems.pipe";
+import {EveBoxGenericPrettyPrinter} from "./generic-pretty-printer.pipe";
 
 @Component({
     template: `<div *ngIf="event._source">
@@ -82,6 +110,21 @@ import {JsonPipe} from "@angular/common";
     
   </div>
 
+  <!-- HTTP. -->
+  <div *ngIf="event._source.http" class="panel panel-default">
+    <div class="panel-heading">
+      HTTP
+    </div>
+    <div class="panel-body">
+    <dl class="dl-horizontal">
+      <div *ngFor="let item of event._source.http | mapToItems">
+        <dt>{{item.key | genericPrettyPrinter}}</dt>
+        <dd>{{item.val}}</dd>
+      </div>
+      </dl>
+    </div>
+  </div>
+  
   <!-- JSON -->
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -94,7 +137,10 @@ import {JsonPipe} from "@angular/common";
 
 </div>
 `,
-    pipes: [EventSeverityToBootstrapClass, JsonPipe],
+    pipes: [
+        EventSeverityToBootstrapClass, JsonPipe, MapToItemsPipe,
+        EveBoxGenericPrettyPrinter
+    ],
     directives: [CodemirrorComponent]
 })
 export class EventComponent implements OnInit {
@@ -102,18 +148,16 @@ export class EventComponent implements OnInit {
     private eventId:string;
     event:any = {};
 
-    constructor(private routeParams:RouteParams,
+    constructor(private route:ActivatedRoute,
+                private router:Router,
                 private elasticSearchService:ElasticSearchService) {
-        routeParams.pluck<string>("id")
-            .subscribe(x => console.log(x));
     }
 
     ngOnInit() {
-        this.routeParams.pluck<string>("id").subscribe(id => {
-            this.eventId = id;
+        this.route.params.subscribe((params:any) => {
+            this.eventId = params.id;
             this.refresh();
         });
-
     }
 
     refresh() {

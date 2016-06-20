@@ -4,6 +4,10 @@
 $event-table-border-color: #ddd;
 $event-table-border: 1px solid $event-table-border-color;
 
+.active {
+  background-color: red;
+}
+
 .evebox-event-table {
 
   cursor: pointer;

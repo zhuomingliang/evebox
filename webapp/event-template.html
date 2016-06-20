@@ -93,23 +93,6 @@
     </div>
   </div>
 
-  <!-- HTTP. -->
-  <div ng-if="vm.source.http" class="panel panel-default">
-    <div class="panel-heading">
-      HTTP
-    </div>
-    <div class="panel-body">
-      <dl class="dl-horizontal">
-        <div ng-repeat="(key, val) in vm.source.http">
-          <dt>{{key | genericEvePrettyPrinter}}</dt>
-          <dd class="break-word">
-            <span search-link field="http.{{key}}"
-                  value="{{val}}">{{val}}</span>
-          </dd>
-        </div>
-      </dl>
-    </div>
-  </div>
 
   <!-- Payload. -->
   <div ng-if="vm.event.newest._source.payload" class="panel panel-default">

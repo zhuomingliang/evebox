@@ -24,27 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Injectable} from "@angular/core";
-import {Http} from "@angular/http";
+import {RouterConfig, provideRouter} from "@angular/router";
 
-@Injectable()
-export class ConfigService {
+import {InboxComponent} from "./inbox.component";
+import {EventComponent} from "./event.component";
 
-    private config:any;
-
-    constructor(private http:Http) {
-        http.get("/api/config").toPromise()
-            .then(response => {
-                console.log(response);
-            })
+export const routes: RouterConfig = [
+    {
+        path: "inbox", component: InboxComponent
     }
-
-    getEventServices() {
-        if (this.config) {
-            if (this.config["event-services"]) {
-                return this.config["event-services"];
-            }
-        }
+    ,
+    {
+        path: "event/:id", component: EventComponent
+    },
+    // Let the inbox by the default route.
+    {
+        path: "", redirectTo: "inbox"
     }
+];
 
-}
+export const APP_ROUTER_PROVIDERS = [
+    provideRouter(routes)
+];
