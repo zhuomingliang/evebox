@@ -18,14 +18,14 @@ APP :=		evebox
 
 WEBPACK :=	./node_modules/.bin/webpack
 
-WEBAPP_SRCS :=	$(shell find webapp2 -type f)
+WEBAPP_SRCS :=	$(shell find webapp -type f)
 GO_SRCS :=	$(shell find . -name \*.go)
 
 all: public evebox
 
 install-deps:
 # NPM
-	(cd webapp2 && npm install)
+	$(MAKE) -C webapp $@
 # Go
 	go get github.com/Masterminds/glide
 	go get github.com/GeertJohan/go.rice/rice
@@ -40,15 +40,15 @@ clean:
 distclean: clean
 	rm -rf node_modules vendor
 
-.PHONY: public dist rpm
+.PHONY: public dist rpm deb
 
 # Build the webapp bundle.
 public/bundle.js: $(WEBAPP_SRCS)
-	cd webapp2 && $(WEBPACK) --optimize-minimize
+	cd webapp && $(WEBPACK) # --optimize-minimize
 public: public/bundle.js
 
 evebox: $(GO_SRCS)
-	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)"
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o ${APP}
 
 with-docker:
 	docker build --rm -t evebox/builder - < Dockerfile
@@ -57,20 +57,20 @@ with-docker:
 		-w /go/src/evebox \
 		evebox/builder make install-deps all
 
-dev-server:
+dev-server: evebox
 	@if [ "${EVEBOX_ELASTICSEARCH_URL}" = "" ]; then \
 		echo "error: EVEBOX_ELASTICSEARCH_URL not set."; \
 		exit 1; \
 	fi
-	./webapp2/node_modules/.bin/concurrently -k \
-		"make -C webapp2 start" \
-		"gin --appPort 5636 -i -b evebox ./evebox -e ${EVEBOX_ELASTICSEARCH_URL} --dev http://localhost:8080"
+	./webapp/node_modules/.bin/concurrently -k \
+		"make -C webapp start" \
+		"./evebox -e ${EVEBOX_ELASTICSEARCH_URL} --dev http://localhost:8080"
 
 dist: GOARCH ?= $(shell go env GOARCH)
 dist: GOOS ?= $(shell go env GOOS)
 dist: DISTNAME ?= ${APP}-${VERSION}${VERSION_SUFFIX}-${GOOS}-${GOARCH}
 dist: LDFLAGS += -s -w
-dist:
+dist: public/bundle.js
 	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o dist/$(DISTNAME)/${APP}
 	rice -v append --exec dist/${DISTNAME}/${APP}
 	cd dist && zip -r ${DISTNAME}.zip ${DISTNAME}
@@ -88,14 +88,16 @@ deb: TILDE := ~$(VERSION_SUFFIX)$(BUILD_DATE_ISO)
 endif
 deb:
 	fpm -s dir \
-		-C dist/evebox-${VERSION}${VERSION_SUFFIX}-linux-amd64 \
 		-t deb \
 		-p dist \
 		-n evebox \
 		--epoch $(EPOCH) \
 		-v $(VERSION)$(TILDE) \
-		--prefix /usr/bin \
-		evebox
+		--after-upgrade=deb/after-upgrade.sh \
+		dist/${APP}-${VERSION}${VERSION_SUFFIX}-linux-amd64/evebox=/usr/bin/evebox \
+		deb/evebox.default=/etc/default/evebox \
+		deb/evebox.service=/lib/systemd/system/evebox.service
+
 
 # RPM packaging.
 ifneq ($(VERSION_SUFFIX),)
@@ -109,6 +111,7 @@ rpm:
 		-p dist \
 		-n evebox \
 		-v $(VERSION) \
+		--after-upgrade=rpm/after-upgrade.sh \
 		--iteration $(RPM_ITERATION) \
 		--config-files /etc/sysconfig/evebox \
 		dist/${APP}-${VERSION}${VERSION_SUFFIX}-linux-amd64/evebox=/usr/bin/evebox \
