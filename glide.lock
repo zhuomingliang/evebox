@@ -1,6 +1,8 @@
-hash: ab81ca4ee0c0177fc790e94f6bfa60a857c762eeec7ef019454f3a616167ac0e
-updated: 2016-12-01T00:37:35.415476077-06:00
+hash: 624564b403b2ed720262a26e7b8ae06bda33554872d7e2bc5b82182a185be827
+updated: 2016-10-29T15:32:18.420121132-06:00
 imports:
+- name: github.com/BurntSushi/toml
+  version: 99064174e013895bbd9b025c31100bd1d9b590ca
 - name: github.com/google/gopacket
   version: c4d647984d4671d9dd91770dae77923a0b48b389
   subpackages:
@@ -30,6 +32,8 @@ imports:
   version: 0aa62d5ddceb50dbcb909d790b5345affd3669b6
 - name: github.com/spf13/pflag
   version: c7e63cf4530bcd3ba943729cee0efeff2ebea63f
+- name: github.com/stretchr/testify
+  version: 976c720a22c8eb4eb6a0b4348ad85ad12491a506
 - name: golang.org/x/net
   version: f841c39de738b1d0df95b5a7187744f0e03d8112
   subpackages:

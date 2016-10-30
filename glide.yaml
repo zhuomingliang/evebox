@@ -19,3 +19,5 @@ import:
   subpackages:
   - unix
 - package: github.com/mattn/go-shellwords
+- package: github.com/BurntSushi/toml
+- package: github.com/stretchr/testify
